@@ -1,4 +1,4 @@
-const V = 'xpe-v2';
+const V = 'xpe-v3';
 const CORE = ['./index.html', './manifest.json', './icon.svg'];
 
 self.addEventListener('install', e => {
