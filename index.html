@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#7F77DD" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#3C3489" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="XP Tracker">
+  <title>Extraordinary expenses</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.11.0/dist/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #ffffff;
+      --bg2:     #f5f4f1;
+      --bg3:     #eceae5;
+      --bgd:     #fdf2f2;
+      --text:    #1a1a1a;
+      --text2:   #666666;
+      --text3:   #aaaaaa;
+      --textd:   #b91c1c;
+      --bdr:     rgba(0,0,0,0.12);
+      --bdr2:    rgba(0,0,0,0.22);
+      --accent:  #7F77DD;
+      --accentd: #6b63c8;
+      --rmd:     8px;
+      --rlg:     12px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:   #1c1c1e;
+        --bg2:  #2c2c2e;
+        --bg3:  #3a3a3c;
+        --bgd:  rgba(185,28,28,0.18);
+        --text: #f0ece4;
+        --text2:#99999a;
+        --text3:#636366;
+        --textd:#f87171;
+        --bdr:  rgba(255,255,255,0.12);
+        --bdr2: rgba(255,255,255,0.22);
+      }
+    }
+
+    html { height: 100%; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      color: var(--text);
+      background: var(--bg3);
+      min-height: 100%;
+      padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+    }
+
+    .app-bar {
+      background: var(--accent);
+      color: #fff;
+      padding: calc(env(safe-area-inset-top, 0px) + 16px) 20px 14px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .app-bar h1 { font-size: 18px; font-weight: 500; }
+    .app-bar p  { font-size: 13px; opacity: 0.82; margin-top: 2px; }
+
+    .main { padding: 14px; max-width: 720px; margin: 0 auto; }
+
+    .card {
+      background: var(--bg);
+      border: 0.5px solid var(--bdr);
+      border-radius: var(--rlg);
+      padding: 1rem 1.125rem;
+      margin-bottom: 12px;
+    }
+    .card-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 12px; }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .metric { background: var(--bg); border: 0.5px solid var(--bdr); border-radius: var(--rlg); padding: 14px 12px; }
+    .metric-label { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+    .metric-value { font-size: 20px; font-weight: 500; color: var(--text); }
+
+    .fgrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .fgrid .span2 { grid-column: 1 / -1; }
+    @media (max-width: 400px) {
+      .fgrid { grid-template-columns: 1fr; }
+      .fgrid .span2 { grid-column: 1; }
+    }
+
+    label.fl { display: block; font-size: 12px; color: var(--text2); margin-bottom: 5px; }
+    label.fl.hidden { visibility: hidden; }
+
+    input, select {
+      width: 100%;
+      height: 40px;
+      border: 0.5px solid var(--bdr2);
+      border-radius: var(--rmd);
+      background: var(--bg2);
+      color: var(--text);
+      font: inherit;
+      font-size: 16px;
+      padding: 0 11px;
+      -webkit-appearance: none;
+      appearance: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input::placeholder { color: var(--text3); }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(127,119,221,0.22);
+    }
+
+    .sel-wrap { position: relative; }
+    .sel-wrap::after {
+      content: '';
+      position: absolute;
+      right: 12px; top: 50%;
+      transform: translateY(-50%);
+      width: 0; height: 0;
+      border: 5px solid transparent;
+      border-top-color: var(--text2);
+      pointer-events: none;
+    }
+    select { padding-right: 30px; cursor: pointer; }
+
+    button {
+      height: 40px;
+      border: 0.5px solid var(--bdr2);
+      border-radius: var(--rmd);
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 15px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 0 16px;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.12s;
+      width: 100%;
+    }
+    button:active { transform: scale(0.97); }
+    button:hover  { background: var(--bg2); }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      font-weight: 500;
+    }
+    .btn-primary:hover { background: var(--accentd); border-color: var(--accentd); }
+
+    .err { font-size: 13px; color: var(--textd); margin-top: 8px; display: none; }
+
+    .cat-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      padding: 3px 9px;
+      border-radius: var(--rmd);
+      font-weight: 500;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    .erow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 0.5px solid var(--bdr);
+    }
+    .erow:last-child { border-bottom: none; }
+
+    .delbtn {
+      background: none !important;
+      border: none !important;
+      box-shadow: none !important;
+      width: auto;
+      height: auto;
+      cursor: pointer;
+      color: var(--text3);
+      padding: 6px;
+      border-radius: var(--rmd);
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .delbtn:hover, .delbtn:active { color: var(--textd) !important; background: var(--bgd) !important; }
+
+    .bottom-grid { display: flex; gap: 12px; flex-wrap: wrap; }
+    .chart-panel { flex: 1; min-width: 200px; }
+    .list-panel  { flex: 2; min-width: 260px; }
+    @media (max-width: 540px) {
+      .chart-panel, .list-panel { flex: 1 1 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-bar" role="banner">
+  <h1>Extraordinary expenses</h1>
+  <p>Track the spending that makes life interesting</p>
+</div>
+
+<main class="main">
+
+  <div class="card">
+    <p class="card-title">Add expense</p>
+    <div class="fgrid">
+      <div class="span2">
+        <label class="fl" for="en">What was it?</label>
+        <input type="text" id="en" placeholder="e.g. Skydiving lesson" autocomplete="off" autocorrect="off">
+      </div>
+      <div>
+        <label class="fl" for="ea">Amount (฿)</label>
+        <input type="number" id="ea" placeholder="0" min="0" step="1" inputmode="numeric">
+      </div>
+      <div>
+        <label class="fl" for="ed">Date</label>
+        <input type="date" id="ed">
+      </div>
+      <div>
+        <label class="fl" for="ec">Category</label>
+        <div class="sel-wrap">
+          <select id="ec">
+            <option value="adventure">Adventure</option>
+            <option value="impulse">Impulse buy</option>
+            <option value="experience">Experience</option>
+            <option value="splurge">Splurge</option>
+            <option value="tech">Tech &amp; gadgets</option>
+            <option value="selfcare">Self-care</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="fl hidden" aria-hidden="true">Add</label>
+        <button class="btn-primary" onclick="addExp()">
+          <i class="ti ti-plus" aria-hidden="true"></i> Add expense
+        </button>
+      </div>
+    </div>
+    <p class="err" id="err" role="alert">Fill in all fields with a valid amount.</p>
+  </div>
+
+  <div class="metrics" role="region" aria-label="Summary">
+    <div class="metric"><p class="metric-label">Total spent</p><p class="metric-value" id="m-total">฿0</p></div>
+    <div class="metric"><p class="metric-label">Logged</p><p class="metric-value" id="m-count">0</p></div>
+    <div class="metric"><p class="metric-label">Biggest splurge</p><p class="metric-value" id="m-big">฿0</p></div>
+    <div class="metric"><p class="metric-label">Top category</p><p class="metric-value" id="m-top" style="font-size:14px;line-height:1.4">—</p></div>
+  </div>
+
+  <div class="bottom-grid">
+    <div class="chart-panel card">
+      <p class="card-title">By category</p>
+      <div id="leg" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;font-size:12px;color:var(--text2)"></div>
+      <div style="position:relative;height:190px">
+        <canvas id="cc" role="img" aria-label="Doughnut chart showing expense breakdown by category">No data yet.</canvas>
+      </div>
+      <p id="ce" style="text-align:center;font-size:13px;color:var(--text2);padding:2rem 0">Add expenses to see the breakdown</p>
+    </div>
+    <div class="list-panel card">
+      <p class="card-title">All expenses</p>
+      <div id="list" role="list"></div>
+    </div>
+  </div>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const CAT = {
+  adventure:  { l:'Adventure',      bg:'#E1F5EE', tx:'#085041', hx:'#1D9E75', i:'ti-mountain'       },
+  impulse:    { l:'Impulse buy',    bg:'#FAECE7', tx:'#712B13', hx:'#D85A30', i:'ti-shopping-cart'  },
+  experience: { l:'Experience',     bg:'#EEEDFE', tx:'#3C3489', hx:'#7F77DD', i:'ti-ticket'         },
+  splurge:    { l:'Splurge',        bg:'#FBEAF0', tx:'#72243E', hx:'#D4537E', i:'ti-star'           },
+  tech:       { l:'Tech & gadgets', bg:'#E6F1FB', tx:'#0C447C', hx:'#378ADD', i:'ti-device-laptop'  },
+  selfcare:   { l:'Self-care',      bg:'#FAEEDA', tx:'#633806', hx:'#BA7517', i:'ti-heart'          },
+};
+
+let db = JSON.parse(localStorage.getItem('xpe3') || '[]');
+let chart = null;
+
+function save() { localStorage.setItem('xpe3', JSON.stringify(db)); }
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmt(n) { return '฿' + Math.round(n).toLocaleString('en'); }
+
+function addExp() {
+  const n = document.getElementById('en').value.trim();
+  const a = parseFloat(document.getElementById('ea').value);
+  const c = document.getElementById('ec').value;
+  const d = document.getElementById('ed').value;
+  const err = document.getElementById('err');
+  if (!n || isNaN(a) || a <= 0 || !d) { err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  db.unshift({ id: Date.now(), n, a, c, d });
+  save();
+  render();
+  document.getElementById('en').value = '';
+  document.getElementById('ea').value = '';
+}
+
+function delExp(id) { db = db.filter(e => e.id !== id); save(); render(); }
+
+function render() {
+  const total = db.reduce((s, e) => s + e.a, 0);
+  const big   = db.reduce((m, e) => Math.max(m, e.a), 0);
+  const cats  = {};
+  for (const e of db) cats[e.c] = (cats[e.c] || 0) + e.a;
+  const top = Object.entries(cats).sort((a, b) => b[1] - a[1])[0];
+
+  document.getElementById('m-total').textContent = fmt(total);
+  document.getElementById('m-count').textContent = db.length;
+  document.getElementById('m-big').textContent   = big > 0 ? fmt(big) : '฿0';
+  document.getElementById('m-top').textContent   = top ? CAT[top[0]].l : '—';
+
+  const list = document.getElementById('list');
+  if (db.length === 0) {
+    list.innerHTML = '<p style="text-align:center;font-size:13px;color:var(--text2);padding:1.5rem 0"><i class="ti ti-star" style="font-size:22px;display:block;margin:0 auto 8px" aria-hidden="true"></i>No expenses yet — add your first one above</p>';
+  } else {
+    list.innerHTML = db.map(e => {
+      const cat = CAT[e.c];
+      const dt  = new Date(e.d + 'T00:00:00');
+      const ds  = dt.toLocaleDateString('en', { month: 'short', day: 'numeric' });
+      return `<div class="erow" role="listitem">
+        <span class="cat-tag" style="background:${cat.bg};color:${cat.tx}"><i class="ti ${cat.i}" aria-hidden="true"></i>${cat.l}</span>
+        <span style="flex:1;font-size:14px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.n)}</span>
+        <span style="font-size:12px;color:var(--text2);flex-shrink:0">${ds}</span>
+        <span style="font-size:14px;font-weight:500;color:var(--text);flex-shrink:0">${fmt(e.a)}</span>
+        <button class="delbtn" onclick="delExp(${e.id})" aria-label="Delete ${esc(e.n)}">
+          <i class="ti ti-trash" style="font-size:16px" aria-hidden="true"></i>
+        </button>
+      </div>`;
+    }).join('');
+  }
+
+  updateChart(cats, total);
+}
+
+function updateChart(cats, total) {
+  const ce     = document.getElementById('ce');
+  const canvas = document.getElementById('cc');
+  const leg    = document.getElementById('leg');
+  const keys   = Object.keys(cats);
+
+  if (keys.length === 0) {
+    ce.style.display = 'block'; canvas.style.display = 'none'; leg.innerHTML = '';
+    if (chart) { chart.destroy(); chart = null; }
+    return;
+  }
+
+  ce.style.display = 'none'; canvas.style.display = 'block';
+  const labels = keys.map(k => CAT[k].l);
+  const vals   = keys.map(k => Math.round(cats[k]));
+  const colors = keys.map(k => CAT[k].hx);
+  const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const border = isDark ? '#1c1c1e' : '#ffffff';
+
+  leg.innerHTML = keys.map(k =>
+    `<span style="display:inline-flex;align-items:center;gap:4px">
+      <span style="width:10px;height:10px;border-radius:2px;background:${CAT[k].hx};display:inline-block;flex-shrink:0"></span>
+      ${CAT[k].l} ${Math.round(cats[k] / total * 100)}%
+    </span>`
+  ).join('');
+
+  if (chart) {
+    chart.data.labels = labels;
+    chart.data.datasets[0].data = vals;
+    chart.data.datasets[0].backgroundColor = colors;
+    chart.data.datasets[0].borderColor = border;
+    chart.update();
+  } else {
+    chart = new Chart(canvas, {
+      type: 'doughnut',
+      data: { labels, datasets: [{ data: vals, backgroundColor: colors, borderWidth: 2, borderColor: border }] },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => ' ' + fmt(ctx.raw) } }
+        }
+      }
+    });
+  }
+}
+
+document.getElementById('ed').value = new Date().toISOString().split('T')[0];
+render();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+}
+</script>
+</body>
+</html>
